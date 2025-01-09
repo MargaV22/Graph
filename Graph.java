@@ -6,31 +6,64 @@ class Graph {
         adjacencyList = new HashMap<>();
     }
 
-    public void addNode(String node) {
-        adjacencyList.putIfAbsent(node, new ArrayList<>());
+    public void addVertex(String vertex) {
+        adjacencyList.putIfAbsent(vertex, new ArrayList<>());
     }
 
-    public void addEdge(String node1, String node2) {
-        if (adjacencyList.containsKey(node1) && adjacencyList.containsKey(node2)) {
-            adjacencyList.get(node1).add(node2);
-            adjacencyList.get(node2).add(node1); 
-        } else {
-            System.out.println("One or both nodes do not exist.");
+    public void addEdge(String vertex1, String vertex2) {
+        if (!adjacencyList.containsKey(vertex1) || !adjacencyList.containsKey(vertex2)) {
+            System.out.println("One or both vertices do not exist.");
+            return;
         }
+        adjacencyList.get(vertex1).add(vertex2);
+        adjacencyList.get(vertex2).add(vertex1);
+    }
+
+    public void dfs(String startVertex) {
+        Set<String> visited = new HashSet<>();
+        System.out.println("DFS Traversal:");
+        dfsRecursive(startVertex, visited);
+        System.out.println();
+    }
+
+    private void dfsRecursive(String vertex, Set<String> visited) {
+        if (!visited.contains(vertex)) {
+            System.out.print(vertex + " ");
+            visited.add(vertex);
+
+            for (String neighbor : adjacencyList.get(vertex)) {
+                dfsRecursive(neighbor, visited);
+            }
+        }
+    }
+
+    public void bfs(String startVertex) {
+        Set<String> visited = new HashSet<>();
+        Queue<String> queue = new LinkedList<>();
+        System.out.println("BFS Traversal:");
+        
+        queue.add(startVertex);
+        visited.add(startVertex);
+
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            System.out.print(current + " ");
+
+            for (String neighbor : adjacencyList.get(current)) {
+                if (!visited.contains(neighbor)) {
+                    queue.add(neighbor);
+                    visited.add(neighbor);
+                }
+            }
+        }
+        System.out.println();
     }
 
     public void displayGraph() {
+        System.out.println("Graph:");
         for (Map.Entry<String, List<String>> entry : adjacencyList.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
-    }
-
-    public boolean hasNode(String node) {
-        return adjacencyList.containsKey(node);
-    }
-
-    public boolean hasEdge(String node1, String node2) {
-        return adjacencyList.containsKey(node1) && adjacencyList.get(node1).contains(node2);
     }
 }
 
@@ -38,22 +71,16 @@ public class SimpleGraph {
     public static void main(String[] args) {
         Graph graph = new Graph();
 
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-
+        graph.addVertex("A");
+        graph.addVertex("B");
+        graph.addVertex("C");
+        graph.addVertex("D");
         graph.addEdge("A", "B");
         graph.addEdge("A", "C");
         graph.addEdge("B", "D");
+        graph.addEdge("C", "D");
 
-        System.out.println("Graph:");
-        graph.displayGraph();
-
-        System.out.println("\nDoes node 'A' exist? " + graph.hasNode("A"));
-        System.out.println("Does node 'E' exist? " + graph.hasNode("E"));
-
-        System.out.println("\nDoes an edge between 'A' and 'B' exist? " + graph.hasEdge("A", "B"));
-        System.out.println("Does an edge between 'C' and 'D' exist? " + graph.hasEdge("C", "D"));
+        graph.dfs("A");
+        graph.bfs("A");
     }
 }
